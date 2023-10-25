@@ -1,13 +1,12 @@
 package com.example.zatravel.auth;
 
 import com.example.zatravel.Config.JwtService;
+import com.example.zatravel.Token.Token;
 import com.example.zatravel.Token.TokenRepo;
-import com.example.zatravel.User.Role;
-import com.example.zatravel.Token.*;
+import com.example.zatravel.Token.TokenType;
 import com.example.zatravel.User.User;
 import com.example.zatravel.User.UserRepo;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +15,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
@@ -50,7 +51,7 @@ public class AuthenticationService {
                         request.getPassword()
                 )
         );
-        var user = repository.findBYEmail(request.getEmail())
+        var user = repository.findByEmail(request.getEmail())
                 .orElseThrow();
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
@@ -97,7 +98,7 @@ public class AuthenticationService {
         refreshToken = authHeader.substring(7);
         userEmail = jwtService.extractUsername(refreshToken);
         if (userEmail != null) {
-            var user = this.repository.findBYEmail(userEmail)
+            var user = this.repository.findByEmail(userEmail)
                     .orElseThrow();
             if (jwtService.isTokenValid(refreshToken, user)) {
                 var accessToken = jwtService.generateToken(user);
